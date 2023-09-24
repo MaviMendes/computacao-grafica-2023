@@ -2,7 +2,22 @@
 #include <iostream>
 #include <math.h>
 
+// teste - movimento de chute
+// bola fazendo uma curva
+
+
 GLfloat ang = 60.0, angulo=30.0;
+GLfloat x_esf = -0.7f,y_esf = 0.2f, z_esf = 0.0f;
+GLfloat x_final_esf = 4.3f;
+GLfloat x_med_esf = 2.25f;
+GLfloat y_med_esf = 2.0;
+// y final eh zero pq a esfera volta pro "chao"
+
+// quando tiver andando com as duas pernas, adicionar variaveis de controle para a direita e a esquerda
+// porque no timer vamos ter que ter if's para controlar o movimento das duas 
+// eu acho, depois a gnt ve isso
+
+bool boneco_andou_tudo = false;
 
 void desenha_perna_direita(){
     glBegin(GL_QUADS);
@@ -26,16 +41,6 @@ void desenha_perna_esquerda(){
     glEnd();
 }
 
-void movimento_boneco(){
-    // movimenta perna direita
-    glPushMatrix();
-        glVertex2f(-1.0, 0.0); // 2a coordenada perna dir
-        glRotated(angulo, 0, 0, 1); // pra voltar pra baixo, manda redesenhar com angulo zero. pra voltar, configura isso no timer
-        glTranslated(1.0, 0.0, 0);
-        desenha_perna_direita();
-    glPopMatrix();
-    
-}
 
 void desenha_boneco() {
     
@@ -71,12 +76,13 @@ void desenha_boneco() {
     glPushMatrix();
     glTranslated(-1.3, 0.5, 0);
     glRotated(angulo, 0, 0, 1); // Aplica a rotação
+    
     glTranslated(1.3, -0.5, 0);
     desenha_perna_direita();
     glPopMatrix();
 
     desenha_perna_esquerda();
-
+    
     glBegin(GL_TRIANGLES);
     // define os vértices do triângulo CABEÇA
     glColor3f(0.0, 0.0, 0.0);
@@ -87,11 +93,8 @@ void desenha_boneco() {
 }
 
 
-void desenha_esfera() {
-    // Posição inicial da esfera
-    GLfloat x = 0.5f;
-    GLfloat y = 0.2f;
-    GLfloat z = 0.0f;
+void desenha_esfera(GLfloat x,GLfloat y,GLfloat z) {
+
 
     // Raio da esfera (pode ser menor)
     GLfloat raio = 0.2f;
@@ -106,7 +109,7 @@ void desenha_esfera() {
     // Desenha a esfera na posição desejada
     glPushMatrix();
     glTranslatef(x, y, z);
-
+    
     glutSolidSphere(raio, slices, stacks);
 
     glPopMatrix();
@@ -165,7 +168,9 @@ void desenha(void){
     // Desenhar a esfera
     //glPushMatrix(); // Salva a matriz atual
     //glTranslatef(0.5f, 0.2f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
-    desenha_esfera();
+    desenha_esfera(x_esf,y_esf,z_esf);
+    
+
     //glPopMatrix(); // Restaura a matriz anterior
 
     // 3 - desenha "gol"
@@ -184,7 +189,37 @@ void desenha(void){
 
 void inicializa(void)
 {
-	glClearColor(1.0, 1.0, 1.0, 1.0);
+	
+    // Configuração de Iluminação
+	GLfloat luzAmbiente[4] = { 0.6, 0.6, 0.6, 1.0 };
+	// Capacidade de brilho do material
+	GLfloat especularidade[4] = { 1.0, 1.0,1.0,1.0 }; // define a cor do brilho no material, geralmente branco
+	GLint expoenteEspecular = 50; // define o brilho do material. varia de 0-128. Mais espelhado ou menos espelhado.
+    
+    // Habilita o modelo de coloriza��o de Gouraud
+	glShadeModel(GL_SMOOTH);
+
+	// Define a reflet�ncia do material 
+	glMaterialfv(GL_FRONT, GL_SPECULAR, especularidade);
+	// Define a concentra��o do brilho
+	glMateriali(GL_FRONT, GL_SHININESS, expoenteEspecular);
+
+	// Ativa o uso da luz ambiente 
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
+
+	// Define os par�metros da luz de n�mero 0
+	glLightfv(GL_LIGHT0, GL_AMBIENT, luzAmbiente);
+
+
+	// Habilita a defini��o da cor do material a partir da cor corrente
+	glEnable(GL_COLOR_MATERIAL);
+	//Habilita o uso de ilumina��o
+	glEnable(GL_LIGHTING);
+	// Habilita a luz de n�mero 0
+	glEnable(GL_LIGHT0);
+
+
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_DEPTH_TEST); // Habilita teste de profundidade
     // tamanho da janela de visualização - ortho2d é a janela da camera
     //gluOrtho2D(0.0, 400.0, 0.0, 400.0);// 0 a 500 em x e em y
@@ -196,15 +231,38 @@ void inicializa(void)
 }
 
 void Timer(int value) {
-    if (angulo < ang) {
-        // Aumenta gradualmente o ângulo da perna direita
-        angulo += 1.0; // Você pode ajustar a velocidade da animação aqui
+    if (!boneco_andou_tudo){
 
-        // Redesenha o boneco com a nova posição da perna direita
-        glutPostRedisplay();
-        glutTimerFunc(1000 / 60, Timer, value);
-    } else {
-        glutPostRedisplay();
+        if (angulo < ang) {
+            // Aumenta gradualmente o ângulo da perna direita
+            angulo += 1.0; // Você pode ajustar a velocidade da animação aqui
+            // Redesenha o boneco com a nova posição da perna direita
+            glutPostRedisplay();
+            glutTimerFunc(1000 / 60, Timer, value);
+            
+        } else{
+            boneco_andou_tudo=true;
+           
+            glutPostRedisplay();
+        }
+    }
+    if (boneco_andou_tudo){
+        
+        if(x_esf<x_med_esf && y_esf<y_med_esf){ //subindo
+            x_esf+=0.2f;
+            y_esf+=0.1f;
+            glutPostRedisplay();
+            glutTimerFunc(1000 / 20, Timer, value);
+        }
+        if(x_esf>=x_med_esf && x_esf<x_final_esf && y_esf>0.3){
+            x_esf+=0.1f;
+            y_esf-=0.1f;
+            glutPostRedisplay();
+            glutTimerFunc(1000 / 20, Timer, value);
+        }
+        else{
+            glutPostRedisplay();
+        }
     }
 }
 
