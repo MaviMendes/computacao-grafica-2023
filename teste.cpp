@@ -123,7 +123,7 @@ void desenha(void){
     // 2- desenha bola 3d
     // Desenhar a esfera
     glPushMatrix(); // Salva a matriz atual
-    glTranslatef(0.5f, -0.0f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
+    glTranslatef(0.5f, 0.2f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
     desenha_esfera();
     glPopMatrix(); // Restaura a matriz anterior
 
