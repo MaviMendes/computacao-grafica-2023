@@ -2,6 +2,41 @@
 #include <iostream>
 #include <math.h>
 
+GLfloat ang = 60.0, angulo=30.0;
+
+void desenha_perna_direita(){
+    glBegin(GL_QUADS);
+    // define os vértices do quadrilátero PERNA ESQ
+    glColor3f(0.0, 1.0, 0.0);
+    glVertex2f(-1.3, 0.0);
+    glVertex2f(-1.0, 0.0);
+    glVertex2f(-1.0, 0.5);
+    glVertex2f(-1.3, 0.5);
+    glEnd();
+}
+
+void desenha_perna_esquerda(){
+    glBegin(GL_QUADS);
+    // define os vértices do quadrilátero PERNA DIR
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex2f(-2.0, 0.0);
+    glVertex2f(-1.7, 0.0);
+    glVertex2f(-1.7, 0.5);
+    glVertex2f(-2.0, 0.5);
+    glEnd();
+}
+
+void movimento_boneco(){
+    // movimenta perna direita
+    glPushMatrix();
+        glVertex2f(-1.0, 0.0); // 2a coordenada perna dir
+        glRotated(angulo, 0, 0, 1); // pra voltar pra baixo, manda redesenhar com angulo zero. pra voltar, configura isso no timer
+        glTranslated(1.0, 0.0, 0);
+        desenha_perna_direita();
+    glPopMatrix();
+    
+}
+
 void desenha_boneco() {
     
     // CORPO COM BRAÇOS
@@ -32,23 +67,15 @@ void desenha_boneco() {
     glVertex2f(-2.0, 1.5);
     glEnd();
 
-    glBegin(GL_QUADS);
-    // define os vértices do quadrilátero PERNA DIR
-    glColor3f(1.0, 0.0, 0.0);
-    glVertex2f(-2.0, 0.0);
-    glVertex2f(-1.7, 0.0);
-    glVertex2f(-1.7, 0.5);
-    glVertex2f(-2.0, 0.5);
-    glEnd();
+    // Aplica a rotação à perna direita aqui
+    glPushMatrix();
+    glTranslated(-1.3, 0.5, 0);
+    glRotated(angulo, 0, 0, 1); // Aplica a rotação
+    glTranslated(1.3, -0.5, 0);
+    desenha_perna_direita();
+    glPopMatrix();
 
-    glBegin(GL_QUADS);
-    // define os vértices do quadrilátero PERNA ESQ
-    glColor3f(0.0, 1.0, 0.0);
-    glVertex2f(-1.3, 0.0);
-    glVertex2f(-1.0, 0.0);
-    glVertex2f(-1.0, 0.5);
-    glVertex2f(-1.3, 0.5);
-    glEnd();
+    desenha_perna_esquerda();
 
     glBegin(GL_TRIANGLES);
     // define os vértices do triângulo CABEÇA
@@ -58,6 +85,7 @@ void desenha_boneco() {
     glVertex2f(-1.5, 2.0);
     glEnd();
 }
+
 
 void desenha_esfera() {
     // Posição inicial da esfera
@@ -109,6 +137,10 @@ void desenha_gol(){
     glEnd();
 }
 
+
+
+
+
 void desenha(void){
     // limpar buffers
     // define a viewport - tudo que desenha fica dentro da viewport
@@ -125,11 +157,10 @@ void desenha(void){
     // Especifica sistema de coordenadas do modelo
 	//glMatrixMode(GL_MODELVIEW);
     //glLoadIdentity();
-
+    
     // ao desenhar os vértices, especificar no sentido anti-horário
     // 1- desenha boneco 2d
     desenha_boneco();
-    
     // 2- desenha bola 3d
     // Desenhar a esfera
     //glPushMatrix(); // Salva a matriz atual
@@ -140,6 +171,8 @@ void desenha(void){
     // 3 - desenha "gol"
     desenha_gol();
     // 4- movimento boneco ate certo ponto e chute - https://www.youtube.com/watch?v=NT-0Q2Psp2Y&list=PLWzp0Bbyy_3jy34HlDrEWlcG3rF99gkvk&index=4
+    //movimento_boneco();
+    
     // 5- trajetoria da bola em uma curva e ela gira em torno do proprio centro (colocar menos faces na bola pra dar pra ver ela girando)
     // quando 1 a 5 funcionar, adicionar o controle por teclado
     
@@ -162,6 +195,19 @@ void inicializa(void)
 	
 }
 
+void Timer(int value) {
+    if (angulo < ang) {
+        // Aumenta gradualmente o ângulo da perna direita
+        angulo += 1.0; // Você pode ajustar a velocidade da animação aqui
+
+        // Redesenha o boneco com a nova posição da perna direita
+        glutPostRedisplay();
+        glutTimerFunc(1000 / 60, Timer, value);
+    } else {
+        glutPostRedisplay();
+    }
+}
+
 int main(int argc, char **argv){
 
     glutInit(&argc,argv);
@@ -169,6 +215,9 @@ int main(int argc, char **argv){
     glutInitWindowPosition(1000, 1000);
     glutInitWindowSize(1000, 1000);
     glutCreateWindow("Teste");
+
+    // define a função Timer
+    glutTimerFunc(1000 / 60, Timer, 0);
 
     //call back function - depois de criar a janela - display vai pertencer a essa janela
     glutDisplayFunc(desenha);
