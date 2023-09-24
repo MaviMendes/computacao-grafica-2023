@@ -3,60 +3,59 @@
 #include <math.h>
 
 void desenha_boneco() {
-    int x = -2;
-
+    
     // CORPO COM BRAÇOS
     glBegin(GL_QUADS);
     // define os vértices do quadrilátero BRAÇO ESQ
     glColor3f(0.0, 0.0, 0.0);
-    glVertex2f(2.0 + x, 1.0 + x);
-    glVertex2f(1.5 + x, 1.5 + x);
-    glVertex2f(1.2 + x, 1.5 + x);
-    glVertex2f(1.7 + x, 1.0 + x);
+    glVertex2f(-0.5, 1.0);
+    glVertex2f(-1.0, 1.5);
+    glVertex2f(-1.3, 1.5);
+    glVertex2f(-0.8, 1.0);
     glEnd();
 
     glBegin(GL_QUADS);
     // define os vértices do quadrilátero BRAÇO DIR
     glColor3f(0.0, 0.0, 0.0);
-    glVertex2f(0.0 + x, 1.0 + x);
-    glVertex2f(0.3 + x, 1.0 + x);
-    glVertex2f(0.8 + x, 1.5 + x);
-    glVertex2f(0.5 + x, 1.5 + x);
+    glVertex2f(-2.5, 1.0);
+    glVertex2f(-2.2, 1.0);
+    glVertex2f(-1.7, 1.5);
+    glVertex2f(-2.0, 1.5);
     glEnd();
 
     glBegin(GL_QUADS);
     // define os vértices do quadrilátero CORPO
     glColor3f(0.0, 0.0, 1.0);
-    glVertex2f(0.5 + x, 0.5 + x);
-    glVertex2f(1.5 + x, 0.5 + x);
-    glVertex2f(1.5 + x, 1.5 + x);
-    glVertex2f(0.5 + x, 1.5 + x);
+    glVertex2f(-2.0, 0.5);
+    glVertex2f(-1.0, 0.5);
+    glVertex2f(-1.0, 1.5);
+    glVertex2f(-2.0, 1.5);
     glEnd();
 
     glBegin(GL_QUADS);
     // define os vértices do quadrilátero PERNA DIR
     glColor3f(1.0, 0.0, 0.0);
-    glVertex2f(0.5 + x, 0.0 + x);
-    glVertex2f(0.8 + x, 0.0 + x);
-    glVertex2f(0.8 + x, 0.5 + x);
-    glVertex2f(0.5 + x, 0.5 + x);
+    glVertex2f(-2.0, 0.0);
+    glVertex2f(-1.7, 0.0);
+    glVertex2f(-1.7, 0.5);
+    glVertex2f(-2.0, 0.5);
     glEnd();
 
     glBegin(GL_QUADS);
     // define os vértices do quadrilátero PERNA ESQ
     glColor3f(0.0, 1.0, 0.0);
-    glVertex2f(1.2 + x, 0.0 + x);
-    glVertex2f(1.5 + x, 0.0 + x);
-    glVertex2f(1.5 + x, 0.5 + x);
-    glVertex2f(1.2 + x, 0.5 + x);
+    glVertex2f(-1.3, 0.0);
+    glVertex2f(-1.0, 0.0);
+    glVertex2f(-1.0, 0.5);
+    glVertex2f(-1.3, 0.5);
     glEnd();
 
     glBegin(GL_TRIANGLES);
     // define os vértices do triângulo CABEÇA
     glColor3f(0.0, 0.0, 0.0);
-    glVertex2f(0.75 + x, 1.5 + x);
-    glVertex2f(1.25 + x, 1.5 + x);
-    glVertex2f(1.0 + x, 2.0 + x);
+    glVertex2f(-1.75, 1.5);
+    glVertex2f(-1.25, 1.5);
+    glVertex2f(-1.5, 2.0);
     glEnd();
 }
 
@@ -79,13 +78,14 @@ void desenha_esfera() {
 void desenha_gol(){
 
     // Posição da base da bola (mesma altura da base do boneco)
-    GLfloat posY = -2.0f;
-
-    // Tamanho do quadrado
-    GLfloat tamanho = 1.0f; // Pode ser ajustado conforme necessário
+    GLfloat posY = 0.0f;
 
     // Posição X do quadrado
-    GLfloat posX = 2.0f;
+    GLfloat posX = 4.2f;
+
+    // Tamanho do quadrado
+    GLfloat tamanho = 1.5f; // Pode ser ajustado conforme necessário
+
 
     // Cor do contorno (preto)
     glColor3f(0.0f, 0.0f, 0.0f);
@@ -109,6 +109,8 @@ void desenha(void){
 	//glMatrixMode(GL_PROJECTION);
     // Inicializa sistema de coordenadas de projeção
 	//glLoadIdentity();
+    // Define uma projeção perspectiva 2D
+   
    
     // Especifica sistema de coordenadas do modelo
 	//glMatrixMode(GL_MODELVIEW);
@@ -121,7 +123,7 @@ void desenha(void){
     // 2- desenha bola 3d
     // Desenhar a esfera
     glPushMatrix(); // Salva a matriz atual
-    glTranslatef(0.05f, -1.8f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
+    glTranslatef(0.5f, -0.0f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
     desenha_esfera();
     glPopMatrix(); // Restaura a matriz anterior
 
@@ -145,7 +147,8 @@ void inicializa(void)
     //gluOrtho2D(0.0, 400.0, 0.0, 400.0);// 0 a 500 em x e em y
     // window da câmera
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(-2.5, 2.5, -2.5, 2.5);
+    gluOrtho2D(-5.0, 5.0, -5.0, 5.0);
+    
 	
 }
 
