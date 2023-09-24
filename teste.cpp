@@ -60,6 +60,10 @@ void desenha_boneco() {
 }
 
 void desenha_esfera() {
+    // Posição inicial da esfera
+    GLfloat x = 0.5f;
+    GLfloat y = 0.2f;
+    GLfloat z = 0.0f;
 
     // Raio da esfera (pode ser menor)
     GLfloat raio = 0.2f;
@@ -71,9 +75,15 @@ void desenha_esfera() {
     // Cor da esfera
     glColor3f(0.0f, 0.0f, 1.0f); // Cor azul
 
-    // Desenha a esfera
+    // Desenha a esfera na posição desejada
+    glPushMatrix();
+    glTranslatef(x, y, z);
+
     glutSolidSphere(raio, slices, stacks);
+
+    glPopMatrix();
 }
+
 
 void desenha_gol(){
 
@@ -122,10 +132,10 @@ void desenha(void){
     
     // 2- desenha bola 3d
     // Desenhar a esfera
-    glPushMatrix(); // Salva a matriz atual
-    glTranslatef(0.5f, 0.2f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
+    //glPushMatrix(); // Salva a matriz atual
+    //glTranslatef(0.5f, 0.2f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
     desenha_esfera();
-    glPopMatrix(); // Restaura a matriz anterior
+    //glPopMatrix(); // Restaura a matriz anterior
 
     // 3 - desenha "gol"
     desenha_gol();
