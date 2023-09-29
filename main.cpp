@@ -1,90 +1,12 @@
-#include <GL/glut.h>
-#include <iostream>
-#include <math.h>
+#include "libs.h"
+#include "Vertice.h"
+#include "Objeto.h"
+#include "Personagem.h"
 
 GLfloat ang = 60.0, angulo=30.0;
+using namespace std;
 
-void desenha_perna_direita(){
-    glBegin(GL_QUADS);
-    // define os vértices do quadrilátero PERNA ESQ
-    glColor3f(0.0, 1.0, 0.0);
-    glVertex2f(-1.3, 0.0);
-    glVertex2f(-1.0, 0.0);
-    glVertex2f(-1.0, 0.5);
-    glVertex2f(-1.3, 0.5);
-    glEnd();
-}
-
-void desenha_perna_esquerda(){
-    glBegin(GL_QUADS);
-    // define os vértices do quadrilátero PERNA DIR
-    glColor3f(1.0, 0.0, 0.0);
-    glVertex2f(-2.0, 0.0);
-    glVertex2f(-1.7, 0.0);
-    glVertex2f(-1.7, 0.5);
-    glVertex2f(-2.0, 0.5);
-    glEnd();
-}
-
-void movimento_boneco(){
-    // movimenta perna direita
-    glPushMatrix();
-        glVertex2f(-1.0, 0.0); // 2a coordenada perna dir
-        glRotated(angulo, 0, 0, 1); // pra voltar pra baixo, manda redesenhar com angulo zero. pra voltar, configura isso no timer
-        glTranslated(1.0, 0.0, 0);
-        desenha_perna_direita();
-    glPopMatrix();
-    
-}
-
-void desenha_boneco() {
-    
-    // CORPO COM BRAÇOS
-    glBegin(GL_QUADS);
-    // define os vértices do quadrilátero BRAÇO ESQ
-    glColor3f(0.0, 0.0, 0.0);
-    glVertex2f(-0.5, 1.0);
-    glVertex2f(-1.0, 1.5);
-    glVertex2f(-1.3, 1.5);
-    glVertex2f(-0.8, 1.0);
-    glEnd();
-
-    glBegin(GL_QUADS);
-    // define os vértices do quadrilátero BRAÇO DIR
-    glColor3f(0.0, 0.0, 0.0);
-    glVertex2f(-2.5, 1.0);
-    glVertex2f(-2.2, 1.0);
-    glVertex2f(-1.7, 1.5);
-    glVertex2f(-2.0, 1.5);
-    glEnd();
-
-    glBegin(GL_QUADS);
-    // define os vértices do quadrilátero CORPO
-    glColor3f(0.0, 0.0, 1.0);
-    glVertex2f(-2.0, 0.5);
-    glVertex2f(-1.0, 0.5);
-    glVertex2f(-1.0, 1.5);
-    glVertex2f(-2.0, 1.5);
-    glEnd();
-
-    // Aplica a rotação à perna direita aqui
-    glPushMatrix();
-    glTranslated(-1.3, 0.5, 0);
-    glRotated(angulo, 0, 0, 1); // Aplica a rotação
-    glTranslated(1.3, -0.5, 0);
-    desenha_perna_direita();
-    glPopMatrix();
-
-    desenha_perna_esquerda();
-
-    glBegin(GL_TRIANGLES);
-    // define os vértices do triângulo CABEÇA
-    glColor3f(0.0, 0.0, 0.0);
-    glVertex2f(-1.75, 1.5);
-    glVertex2f(-1.25, 1.5);
-    glVertex2f(-1.5, 2.0);
-    glEnd();
-}
+Personagem *personagem;
 
 
 void desenha_esfera() {
@@ -139,8 +61,6 @@ void desenha_gol(){
 
 
 
-
-
 void desenha(void){
     // limpar buffers
     // define a viewport - tudo que desenha fica dentro da viewport
@@ -160,7 +80,8 @@ void desenha(void){
     
     // ao desenhar os vértices, especificar no sentido anti-horário
     // 1- desenha boneco 2d
-    desenha_boneco();
+    personagem->desenharPersonagem();
+    //desenha_boneco();
     // 2- desenha bola 3d
     // Desenhar a esfera
     //glPushMatrix(); // Salva a matriz atual
@@ -191,9 +112,22 @@ void inicializa(void)
     // window da câmera
     glMatrixMode(GL_PROJECTION);
     gluOrtho2D(-5.0, 5.0, -5.0, 5.0);
+    personagem = new Personagem();
     
 	
 }
+
+void ControleTeclado(unsigned char key, int x, int y) { 
+
+    switch (key) {
+        case 'C':
+        case 'c': 
+            personagem->andar();
+        break;
+    }
+    glutPostRedisplay();
+}
+
 
 void Timer(int value) {
     if (angulo < ang) {
@@ -215,6 +149,8 @@ int main(int argc, char **argv){
     glutInitWindowPosition(1000, 1000);
     glutInitWindowSize(1000, 1000);
     glutCreateWindow("Teste");
+
+    glutKeyboardFunc(ControleTeclado); // Define qual funcao gerencia o comportamento do teclado
 
     // define a função Timer
     glutTimerFunc(1000 / 60, Timer, 0);
