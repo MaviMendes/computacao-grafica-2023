@@ -75,8 +75,8 @@ void desenha(void){
    
    
     // Especifica sistema de coordenadas do modelo
-	//glMatrixMode(GL_MODELVIEW);
-    //glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     
     // ao desenhar os vértices, especificar no sentido anti-horário
     // 1- desenha boneco 2d

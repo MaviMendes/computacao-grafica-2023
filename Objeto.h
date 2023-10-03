@@ -10,12 +10,14 @@ using namespace std;
 class Objeto {
     public:
         vector<Vertice*> vertices;
+        vector<Vertice*> normais;
         Vertice posicao;
         float cor[3];
 
         Objeto();
         Objeto(vector<Vertice*> vertices);
         Objeto(vector<Vertice*> vertices, float cor[3]);
+        Objeto(vector<Vertice*> vertices, vector<Vertice*> normais, float cor[3]);
 
         void cisalhamentoEmY(float shY);
         void cisalhamentoEmX(float shX);
