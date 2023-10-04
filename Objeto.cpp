@@ -17,6 +17,15 @@ Objeto::Objeto(vector<Vertice *> vertices, float cor[3])
     this->vertices = vertices;
 }
 
+Objeto::Objeto(vector<Vertice *> vertices, vector<Vertice *> normais, float cor[3])
+{
+    this->cor[0] = cor[0];
+    this->cor[1] = cor[1];
+    this->cor[2] = cor[2];
+    this->vertices = vertices;
+    this->normais = normais;
+}
+
 void Objeto::cisalhamentoEmY(float shY)
 {
     for (int i = 0; i < vertices.size(); i++)
@@ -51,6 +60,7 @@ void Objeto::rotacionar(float angulo)
         this->vertices[i]->y = x * sin(angulo) - y * cos(angulo);
     }
 }
+
 
 void Objeto::reflexaoEmX(float escala)
 {

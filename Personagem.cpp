@@ -78,32 +78,72 @@ Personagem::Personagem(Objeto cabeca, Objeto corpo, Objeto braco_direito, Objeto
 
 void Personagem::desenharPersonagem()
 {
-    // desenha membros do corpo
-    for (int i = 0; i < this->membros.size() - 1; i++)
+    vector<Vertice *> vertices = this->corpo.vertices;
+    // desenha corpo
+    glBegin(GL_QUADS);
+    glColor3f(this->corpo.cor[0], this->corpo.cor[1], this->corpo.cor[2]);
+    for (int i = 0; i < this->corpo.vertices.size(); i++)
     {
-        Objeto &objeto = *this->membros[i];
-        vector<Vertice *> vertices = objeto.vertices;
-        glBegin(GL_QUADS);
-        glColor3f(objeto.cor[0], objeto.cor[1], objeto.cor[2]);
-
-        for (int j = 0; j < vertices.size(); j++)
-        {
-            glVertex2f(vertices[j]->x, vertices[j]->y);
-        }
-
-        glEnd();
-        vertices.clear();
+        glVertex2f(vertices[i]->x, vertices[i]->y);
     }
+    glEnd();
+
+    // desenha perna_direita
+    vertices = this->perna_direita.vertices;
+    glBegin(GL_QUADS);
+    glColor3f(perna_direita.cor[0], perna_direita.cor[1], perna_direita.cor[2]);
+    for (int i = 0; i < this->perna_direita.vertices.size(); i++)
+    {
+        glVertex2f(vertices[i]->x, vertices[i]->y);
+    }
+    glEnd();
+
+    vertices = this->perna_esquerda.vertices;
+    glPushMatrix(); // [2]
+    glTranslated((vertices[2]->x), (vertices[2]->y), 0);
+    glRotated(this->angulo_perna, 0, 0, 1);
+    glTranslated(-(vertices[2]->x), -(vertices[2]->y), 0);
+    //  desenha perna_esquerda
+    glBegin(GL_QUADS);
+    glColor3f(this->perna_esquerda.cor[0], this->perna_esquerda.cor[1], this->perna_esquerda.cor[2]);
+    for (int i = 0; i < this->perna_esquerda.vertices.size(); i++)
+    {
+        cout << vertices[i]->x << vertices[i]->y << endl;
+        glVertex2f(vertices[i]->x, vertices[i]->y);
+    }
+    glEnd();
+    glPopMatrix();
+
+    // desenha braco_direito
+    vertices = this->braco_direito.vertices;
+    glBegin(GL_QUADS);
+    glColor3f(this->braco_direito.cor[0], this->braco_direito.cor[1], this->braco_direito.cor[2]);
+    for (int i = 0; i < this->braco_direito.vertices.size(); i++)
+    {
+        glVertex2f(vertices[i]->x, vertices[i]->y);
+    }
+    glEnd();
+
+    // desenha braco_esquerdo
+    glBegin(GL_QUADS);
+    glColor3f(this->braco_esquerdo.cor[0], this->braco_esquerdo.cor[1], this->braco_esquerdo.cor[2]);
+    vertices = this->braco_esquerdo.vertices;
+    for (int i = 0; i < this->braco_esquerdo.vertices.size(); i++)
+    {
+        glVertex2f(vertices[i]->x, vertices[i]->y);
+    }
+    glEnd();
 
     // desenha cabeça
     glBegin(GL_TRIANGLES);
     glColor3f(this->cabeca.cor[0], this->cabeca.cor[1], this->cabeca.cor[2]);
-    vector<Vertice *> vertices = this->cabeca.vertices;
+    vertices = this->cabeca.vertices;
     for (int j = 0; j < this->cabeca.vertices.size(); j++)
     {
         glVertex2f(vertices[j]->x, vertices[j]->y);
     }
     glEnd();
+    vertices.clear();
 }
 
 void Personagem::desenharMembro(Objeto membro)
@@ -117,7 +157,7 @@ void Personagem::desenharMembro(Objeto membro)
         glVertex2f(vertices[j]->x, vertices[j]->y);
     }
     vertices.clear();
-    glutSwapBuffers();
+    glEnd();
 }
 
 // sai da posição inicial e inclina os dois pés pra parecer passos
@@ -136,32 +176,38 @@ void Personagem::entrarPosicaoAndar()
 
 void Personagem::andar()
 {
-    if (pe_frontal == 2)
+    if (passos == 0)
     {
         entrarPosicaoAndar();
-        pe_frontal = 1;
+        passos += 1;
         return;
     }
+    else if (boneco_andou_tudo == false)
+    {
+        glPushMatrix();
+        corpo.transladar(1.3, 0.0);
+        cabeca.transladar(1.3, 0.0);
+        braco_direito.transladar(1.3, 0.0);
+        braco_esquerdo.transladar(1.3, 0.0);
 
-    // alterna o pé frontal
-    // 0 -> vermelho/esquerdo, 1 -> verde/direito, 2 -> inicial
-    pe_frontal = pe_frontal == 0 ? 1 : 0;
+        // se o pé atual for vermelho/esquerdo
+        perna_direita.reflexaoEmY(-1);
+        perna_direita.transladar(-1.7, 0.0);
 
-    glPushMatrix();
-    corpo.transladar(1.0, 0.0);
-    cabeca.transladar(1.0, 0.0);
-    braco_direito.transladar(1.0, 0.0);
-    braco_esquerdo.transladar(1.0, 0.0);
+        perna_esquerda.reflexaoEmY(-1);
+        perna_esquerda.transladar(-1.7, 0.0);
 
-    // se o pé atual for vermelho/esquerdo
-    perna_direita.reflexaoEmY(-1);
-    perna_direita.transladar(-2.0, 0.0);
+        glPopMatrix();
+        glFlush();
+        passos++;
+        if (passos == 2)
+            boneco_andou_tudo = true;
+    }
+}
 
-    perna_esquerda.reflexaoEmY(-1);
-    perna_esquerda.transladar(-2.0, 0.0);
-
-    glPopMatrix();
-    glFlush();
+void Personagem::girarPernaDireita(float angulo)
+{
+    angulo_perna += angulo;
 }
 
 void Personagem::chutarBola()
