@@ -4,5 +4,6 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <cstring>
 
 using namespace std;

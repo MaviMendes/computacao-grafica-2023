@@ -21,17 +21,13 @@ public:
     GLfloat angulo=30.0;
     GLfloat angulo_perna=0.0;
     Personagem();
-    Personagem(vector<Objeto*> membros);
-    Personagem(Objeto cabeca, Objeto corpo, Objeto braco_direito, Objeto braco_esquerdo,
-               Objeto perna_direita, Objeto perna_esquerda);
     void andar();
     void desenharPersonagem();
     void girarPernaDireita(float angulo);
-    void chutarBola();
+    void posicaoComemoracao();
 private:
     int passos = 0;
     void entrarPosicaoAndar();
-    void desenharMembro(Objeto membro);
 };
 
 #endif

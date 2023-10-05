@@ -4,26 +4,12 @@ Objeto::Objeto()
 {
 }
 
-Objeto::Objeto(vector<Vertice *> vertices)
-{
-    this->vertices = vertices;
-}
-
 Objeto::Objeto(vector<Vertice *> vertices, float cor[3])
 {
     this->cor[0] = cor[0];
     this->cor[1] = cor[1];
     this->cor[2] = cor[2];
     this->vertices = vertices;
-}
-
-Objeto::Objeto(vector<Vertice *> vertices, vector<Vertice *> normais, float cor[3])
-{
-    this->cor[0] = cor[0];
-    this->cor[1] = cor[1];
-    this->cor[2] = cor[2];
-    this->vertices = vertices;
-    this->normais = normais;
 }
 
 void Objeto::cisalhamentoEmY(float shY)

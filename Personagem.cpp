@@ -54,28 +54,6 @@ Personagem::Personagem()
     this->membros = vector<Objeto *>{&corpo, &braco_direito, &braco_esquerdo, &perna_direita, &perna_esquerda, &cabeca};
 }
 
-Personagem::Personagem(vector<Objeto *> membros)
-{
-    this->corpo = *membros[0];
-    this->braco_direito = *membros[1];
-    this->braco_esquerdo = *membros[2];
-    this->perna_direita = *membros[3];
-    this->perna_esquerda = *membros[4];
-    this->cabeca = *membros[5];
-    this->membros = membros;
-}
-
-Personagem::Personagem(Objeto cabeca, Objeto corpo, Objeto braco_direito, Objeto braco_esquerdo, Objeto perna_direita, Objeto perna_esquerda)
-{
-    this->cabeca = cabeca;
-    this->corpo = corpo;
-    this->braco_direito = braco_direito;
-    this->braco_esquerdo = braco_esquerdo;
-    this->perna_direita = perna_direita;
-    this->perna_esquerda = perna_esquerda;
-    this->membros = vector<Objeto *>{&corpo, &braco_direito, &braco_esquerdo, &perna_direita, &perna_esquerda, &cabeca};
-}
-
 void Personagem::desenharPersonagem()
 {
     vector<Vertice *> vertices = this->corpo.vertices;
@@ -108,7 +86,6 @@ void Personagem::desenharPersonagem()
     glColor3f(this->perna_esquerda.cor[0], this->perna_esquerda.cor[1], this->perna_esquerda.cor[2]);
     for (int i = 0; i < this->perna_esquerda.vertices.size(); i++)
     {
-        cout << vertices[i]->x << vertices[i]->y << endl;
         glVertex2f(vertices[i]->x, vertices[i]->y);
     }
     glEnd();
@@ -144,20 +121,6 @@ void Personagem::desenharPersonagem()
     }
     glEnd();
     vertices.clear();
-}
-
-void Personagem::desenharMembro(Objeto membro)
-{
-    vector<Vertice *> vertices = membro.vertices;
-    glBegin(GL_QUADS);
-    glColor3f(membro.cor[0], membro.cor[1], membro.cor[2]);
-
-    for (int j = 0; j < vertices.size(); j++)
-    {
-        glVertex2f(vertices[j]->x, vertices[j]->y);
-    }
-    vertices.clear();
-    glEnd();
 }
 
 // sai da posição inicial e inclina os dois pés pra parecer passos
@@ -205,11 +168,21 @@ void Personagem::andar()
     }
 }
 
+void Personagem::posicaoComemoracao()
+{
+    glPushMatrix();
+        perna_direita.cisalhamentoEmX(-0.5);
+        angulo_perna = 0;
+        perna_esquerda.cisalhamentoEmX(0.5);
+        braco_direito.reflexaoEmX(-1);
+        braco_direito.transladar(0, 3);
+        braco_esquerdo.reflexaoEmX(-1);
+        braco_esquerdo.transladar(0, 3);
+    glPopMatrix();
+    glFlush();
+}
+
 void Personagem::girarPernaDireita(float angulo)
 {
     angulo_perna += angulo;
-}
-
-void Personagem::chutarBola()
-{
 }

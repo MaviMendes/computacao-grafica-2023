@@ -8,10 +8,15 @@ using namespace std;
 
 Personagem *personagem;
 
-GLfloat x_esf = -0.7f, y_esf = 0.2f, z_esf = 0.0f;
-GLfloat x_final_esf = 4.3f;
+GLfloat x_esf = 0.5f, y_esf = 0.2f, z_esf = 0.0f;
+GLfloat x_final_esf = 4.0f;
 GLfloat x_med_esf = 2.25f;
 GLfloat y_med_esf = 2.0;
+
+float t = 0.0f;
+float velocidadeAnimacao = 0.001f;
+
+// se a pos atual for menor q 4.3 e a prox maior q .5
 
 bool boneco_virou_perna = false;
 
@@ -23,10 +28,10 @@ GLfloat bezier(GLfloat P0, GLfloat P1, GLfloat P2, GLfloat P3, GLfloat t)
 void moveSphereOnBezierCurve(GLfloat &x, GLfloat &y, GLfloat &z, GLfloat t)
 {
     // Define the control points for the Bezier curve
-    GLfloat P0x = -0.7f, P0y = 0.2f, P0z = 0.0f; // Starting position of the sphere
-    GLfloat P1x = 1.0f, P1y = 3.0f, P1z = 0.0f;  // Control point 1
-    GLfloat P2x = 2.5f, P2y = 2.0f, P2z = 0.0f;  // Control point 2
-    GLfloat P3x = 4.3f, P3y = 0.0f, P3z = 0.0f;  // Ending position of the sphere
+    GLfloat P0x = 0.5f, P0y = 0.2f, P0z = 0.0f; // Starting position of the sphere
+    GLfloat P1x = 1.5f, P1y = 3.0f, P1z = 0.0f; // Control point 1
+    GLfloat P2x = 2.5f, P2y = 1.5f, P2z = 0.0f; // Control point 2
+    GLfloat P3x = 4.0f, P3y = 0.2f, P3z = 0.0f; // Ending position of the sphere
 
     // Calculate the new position of the sphere along the Bezier curve
     x = bezier(P0x, P1x, P2x, P3x, t);
@@ -36,6 +41,8 @@ void moveSphereOnBezierCurve(GLfloat &x, GLfloat &y, GLfloat &z, GLfloat t)
 
 void desenha_esfera(GLfloat x, GLfloat y, GLfloat z)
 {
+    // Calcula as novas coordenadas da bola na curva de Bezier usando o valor de t
+    moveSphereOnBezierCurve(x_esf, y_esf, z_esf, t);
 
     // Raio da esfera (pode ser menor)
     GLfloat raio = 0.2f;
@@ -110,6 +117,7 @@ void desenha(void)
 
     // 3 - desenha "gol"
     desenha_gol();
+
     // 4- movimento boneco ate certo ponto e chute - https://www.youtube.com/watch?v=NT-0Q2Psp2Y&list=PLWzp0Bbyy_3jy34HlDrEWlcG3rF99gkvk&index=4
     // movimento_boneco();
 
@@ -174,89 +182,50 @@ void ControleTeclado(unsigned char key, int x, int y)
     glutPostRedisplay();
 }
 
+bool golRealizado = false;
+bool podePular = false;
+
 void Timer(int value)
 {
-
     if (!boneco_virou_perna && personagem->boneco_andou_tudo)
     {
         if (anguloMin < anguloMax)
         {
             // Aumenta gradualmente o ângulo da perna direita
             anguloMin += 10.0; // Você pode ajustar a velocidade da animação aqui
-            cout << anguloMin << endl;
             personagem->girarPernaDireita(anguloMin);
             // Redesenha o boneco com a nova posição da perna direita
-            glutPostRedisplay();
-            glutTimerFunc(1000 / 20, Timer, value + 1);
         }
         else
         {
-            cout << boneco_virou_perna;
-            cout << personagem->boneco_andou_tudo;
             boneco_virou_perna = true;
-            // glutPostRedisplay();
         }
-        // glutTimerFunc(1000 / 5, Timer, value+1);
     }
-    if (boneco_virou_perna) // chuta
+
+    if (boneco_virou_perna && !golRealizado) // chuta
     {
-        cout << personagem->boneco_andou_tudo;
-        if (x_esf < x_med_esf && y_esf < y_med_esf)
-        { // subindo
-            x_esf += 0.2f;
-            y_esf += 0.1f;
-        }
-        if (x_esf >= x_med_esf && x_esf < x_final_esf && y_esf > 0.3)
+        value = 45;
+
+        // Interpolação linear para suavizar o movimento
+        float deltaT = velocidadeAnimacao * value; // Ajuste o valor conforme necessário para uma animação mais suave
+        t += deltaT;
+
+        // Garanta que t permaneça entre 0 e 1 para manter a animação dentro dos limites da curva de Bezier
+        if (t > 1.0f)
         {
-            x_esf += 0.1f;
-            y_esf -= 0.1f;
+            t = 1.0f;
+            golRealizado = true;
         }
-        else
-        {
-        }
+    }
+    if (golRealizado && !podePular) {
+        personagem->posicaoComemoracao();
+        podePular = true;
     }
 
     glutPostRedisplay();
-    glutTimerFunc(1000 / 60, Timer, value + 1);
+    glutTimerFunc(24, Timer, value + 1);
 }
 
-/**
- * void Timer(int value) {
-    if (!boneco_andou_tudo){
-
-        if (angulo < ang) {
-            // Aumenta gradualmente o ângulo da perna direita
-            angulo += 1.0; // Você pode ajustar a velocidade da animação aqui
-            // Redesenha o boneco com a nova posição da perna direita
-            glutPostRedisplay();
-            glutTimerFunc(1000 / 60, Timer, value);
-
-        } else{
-            boneco_andou_tudo=true;
-
-            glutPostRedisplay();
-        }
-    }
-    if (boneco_andou_tudo){
-
-        if(x_esf<x_med_esf && y_esf<y_med_esf){ //subindo
-            x_esf+=0.2f;
-            y_esf+=0.1f;
-            glutPostRedisplay();
-            glutTimerFunc(1000 / 20, Timer, value);
-        }
-        if(x_esf>=x_med_esf && x_esf<x_final_esf && y_esf>0.3){
-            x_esf+=0.1f;
-            y_esf-=0.1f;
-            glutPostRedisplay();
-            glutTimerFunc(1000 / 20, Timer, value);
-        }
-        else{
-            glutPostRedisplay();
-        }
-    }
-}
-*/
 
 int main(int argc, char **argv)
 {
@@ -265,7 +234,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowPosition(1000, 1000);
     glutInitWindowSize(1000, 1000);
-    glutCreateWindow("Teste");
+    glutCreateWindow("Pressione C para andar");
 
     glutKeyboardFunc(ControleTeclado); // Define qual funcao gerencia o comportamento do teclado
 
