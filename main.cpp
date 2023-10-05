@@ -3,20 +3,24 @@
 #include "Objeto.h"
 #include "Personagem.h"
 
-GLfloat anguloMax = 20.0, anguloMin = 0.0;
 using namespace std;
+
+// ângulos que irão controlar movimento de chute boneco. variáveis usadas na função Timer()
+GLfloat anguloMax = 20.0, anguloMin = 0.0;
 
 Personagem *personagem;
 
-GLfloat x_esf = 0.5f, y_esf = 0.2f, z_esf = 0.0f;
-GLfloat x_final_esf = 4.0f;
-GLfloat x_med_esf = 2.25f;
-GLfloat y_med_esf = 2.0;
+// variáveis que serão usadas de parâmetro para controlar o movimento da esfera
+GLfloat x_esf = 0.5f, y_esf = 0.2f, z_esf = 0.0f; // posição inicial da esfera
+GLfloat x_final_esf = 4.0f; // posição final
+GLfloat x_med_esf = 2.25f; // posição intermediária no eixo x. a partir dessa posição, ela para de subir e começa a descer
+GLfloat y_med_esf = 2.0; 
 
-float t = 0.0f;
-float velocidadeAnimacao = 0.001f;
+// variáveis usadas na função Timer() e controle do movimento da esfera ao longo da curva de bezier
+float t = 0.0f; // usada em mover_esfera_bezier(GLfloat &x, GLfloat &y, GLfloat &z, GLfloat t)
+float velocidadeAnimacao = 0.001f; 
 
-// se a pos atual for menor q 4.3 e a prox maior q .5
+// variável de controle usada no Timer(): se a pos atual for menor q 4.3 e a prox maior q .5
 
 bool boneco_virou_perna = false;
 
@@ -25,15 +29,15 @@ GLfloat bezier(GLfloat P0, GLfloat P1, GLfloat P2, GLfloat P3, GLfloat t)
     return pow(1 - t, 3) * P0 + 3 * t * pow(1 - t, 2) * P1 + 3 * pow(t, 2) * (1 - t) * P2 + pow(t, 3) * P3;
 }
 
-void moveSphereOnBezierCurve(GLfloat &x, GLfloat &y, GLfloat &z, GLfloat t)
+void mover_esfera_bezier(GLfloat &x, GLfloat &y, GLfloat &z, GLfloat t)
 {
-    // Define the control points for the Bezier curve
-    GLfloat P0x = 0.5f, P0y = 0.2f, P0z = 0.0f; // Starting position of the sphere
-    GLfloat P1x = 1.5f, P1y = 3.0f, P1z = 0.0f; // Control point 1
-    GLfloat P2x = 2.5f, P2y = 1.5f, P2z = 0.0f; // Control point 2
-    GLfloat P3x = 4.0f, P3y = 0.2f, P3z = 0.0f; // Ending position of the sphere
+    // Definição de pontos de controle da curva de bezier
+    GLfloat P0x = 0.5f, P0y = 0.2f, P0z = 0.0f; // Ponto inicial da esfera
+    GLfloat P1x = 1.5f, P1y = 3.0f, P1z = 0.0f; //ponto de controle 1
+    GLfloat P2x = 2.5f, P2y = 1.5f, P2z = 0.0f; // ponto de controle 2
+    GLfloat P3x = 4.0f, P3y = 0.2f, P3z = 0.0f; //posição final da esfera
 
-    // Calculate the new position of the sphere along the Bezier curve
+    // calcular nova posição da esfera ao longo da curva de bezier
     x = bezier(P0x, P1x, P2x, P3x, t);
     y = bezier(P0y, P1y, P2y, P3y, t);
     z = bezier(P0z, P1z, P2z, P3z, t);
@@ -42,7 +46,7 @@ void moveSphereOnBezierCurve(GLfloat &x, GLfloat &y, GLfloat &z, GLfloat t)
 void desenha_esfera(GLfloat x, GLfloat y, GLfloat z)
 {
     // Calcula as novas coordenadas da bola na curva de Bezier usando o valor de t
-    moveSphereOnBezierCurve(x_esf, y_esf, z_esf, t);
+    mover_esfera_bezier(x_esf, y_esf, z_esf, t);
 
     // Raio da esfera (pode ser menor)
     GLfloat raio = 0.2f;
@@ -94,35 +98,18 @@ void desenha(void)
     glViewport(0, 0, 800, 800);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Especifica sistema de coordenadas de projeção
-    // glMatrixMode(GL_PROJECTION);
-    // Inicializa sistema de coordenadas de projeção
-    // glLoadIdentity();
-    // Define uma projeção perspectiva 2D
-
-    // Especifica sistema de coordenadas do modelo
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadIdentity();
-
     // ao desenhar os vértices, especificar no sentido anti-horário
     // 1- desenha boneco 2d
     personagem->desenharPersonagem();
-    // desenha_boneco();
     //  2- desenha bola 3d
     //  Desenhar a esfera
-    // glPushMatrix(); // Salva a matriz atual
-    // glTranslatef(0.5f, 0.2f, 0.0f); // Translada para a posição da esfera (altura da base da perna do boneco)
     desenha_esfera(x_esf, y_esf, z_esf);
-    // glPopMatrix(); // Restaura a matriz anterior
-
     // 3 - desenha "gol"
     desenha_gol();
 
-    // 4- movimento boneco ate certo ponto e chute - https://www.youtube.com/watch?v=NT-0Q2Psp2Y&list=PLWzp0Bbyy_3jy34HlDrEWlcG3rF99gkvk&index=4
-    // movimento_boneco();
-
-    // 5- trajetoria da bola em uma curva e ela gira em torno do proprio centro (colocar menos faces na bola pra dar pra ver ela girando)
-    // quando 1 a 5 funcionar, adicionar o controle por teclado
+    // Pontos 4 e 5 definidos posteriormente
+    // 4- movimento boneco ate certo ponto e chute
+    // 5- trajetoria da bola em uma curva e
 
     // executa os comandos opengl
     glFlush();
@@ -137,37 +124,37 @@ void inicializa(void)
     GLfloat especularidade[4] = {1.0, 1.0, 1.0, 1.0}; // define a cor do brilho no material, geralmente branco
     GLint expoenteEspecular = 50;                     // define o brilho do material. varia de 0-128. Mais espelhado ou menos espelhado.
 
-    // Habilita o modelo de coloriza��o de Gouraud
+    // Habilita o modelo de colorização
     glShadeModel(GL_SMOOTH);
 
-    // Define a reflet�ncia do material
+    // Define a refletância do material
     glMaterialfv(GL_FRONT, GL_SPECULAR, especularidade);
-    // Define a concentra��o do brilho
+    // Define a concentraçãoo do brilho
     glMateriali(GL_FRONT, GL_SHININESS, expoenteEspecular);
 
     // Ativa o uso da luz ambiente
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
 
-    // Define os par�metros da luz de n�mero 0
+    // Define os parametros da luz de numero 0
     glLightfv(GL_LIGHT0, GL_AMBIENT, luzAmbiente);
 
-    // Habilita a defini��o da cor do material a partir da cor corrente
+    // Habilita a definiçãoo da cor do material a partir da cor corrente
     glEnable(GL_COLOR_MATERIAL);
-    // Habilita o uso de ilumina��o
+    // Habilita o uso de iluminaçãoo
     glEnable(GL_LIGHTING);
-    // Habilita a luz de n�mero 0
+    // Habilita a luz de número 0
     glEnable(GL_LIGHT0);
 
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_DEPTH_TEST); // Habilita teste de profundidade
-    // tamanho da janela de visualização - ortho2d é a janela da camera
-    // gluOrtho2D(0.0, 400.0, 0.0, 400.0);// 0 a 500 em x e em y
-    // window da câmera
+    
     glMatrixMode(GL_PROJECTION);
     gluOrtho2D(-5.0, 5.0, -5.0, 5.0);
 
     personagem = new Personagem();
 }
+
+// Controle do usuário que faz o boneco andar
 
 void ControleTeclado(unsigned char key, int x, int y)
 {
@@ -182,11 +169,15 @@ void ControleTeclado(unsigned char key, int x, int y)
     glutPostRedisplay();
 }
 
+// variáveis de controle para auxiliar na animação
+
 bool golRealizado = false;
 bool podePular = false;
 
 void Timer(int value)
 {
+    // se o boneco andou ate o ponto perto da bola, mas ainda não fez movimento de chute:
+    // em void Personagem::andar() em Personagem.cpp o valor de boneco_andou_tudo é atualizado após ele dar dois passos
     if (!boneco_virou_perna && personagem->boneco_andou_tudo)
     {
         if (anguloMin < anguloMax)
@@ -196,12 +187,13 @@ void Timer(int value)
             personagem->girarPernaDireita(anguloMin);
             // Redesenha o boneco com a nova posição da perna direita
         }
+        // boneco fez movimento de chute
         else
         {
             boneco_virou_perna = true;
         }
     }
-
+    // boneco andou ate perto da bola e girou a perna
     if (boneco_virou_perna && !golRealizado) // chuta
     {
         value = 45;
@@ -217,6 +209,7 @@ void Timer(int value)
             golRealizado = true;
         }
     }
+    // boneco chutou a bola, mas ainda não comemorou
     if (golRealizado && !podePular) {
         personagem->posicaoComemoracao();
         podePular = true;
